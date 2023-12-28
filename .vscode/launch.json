@@ -6,10 +6,9 @@
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
-
-      "args": ["src/index.ts", "--example", "hello"],
-
+      "runtimeArgs": ["--loader", "ts-node/esm", "--nolazy", "-r", "ts-node/register/transpile-only"],
+      "args": ["src/index.ts"],
+      "program": "${workspaceFolder}/src/index.ts",
       "cwd": "${workspaceRoot}",
       "internalConsoleOptions": "openOnSessionStart",
       "skipFiles": ["<node_internals>/**", "node_modules/**"]

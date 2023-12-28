@@ -1,6 +1,7 @@
-async function hi() {
-  console.log('Hi');
+import { ENV } from './config';
+
+async function main() {
+  console.log('ENV', ENV);
 }
 
-await hi();
-export {};
+main();
