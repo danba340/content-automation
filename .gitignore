@@ -4,3 +4,5 @@ node_modules
 
 src/projects/*
 !src/projects/demo
+
+remotion/node_modules

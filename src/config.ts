@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-let env_keys = ['ELEVEN_LABS_API_KEY', 'ASSEMBLY_AI_API_KEY', 'REDDIT_PASSWORD', 'REDDIT_APP_SECRET'] as const;
+let env_keys = ['ELEVEN_LABS_API_KEY', 'ASSEMBLY_AI_API_KEY', 'REDDIT_PASSWORD', 'REDDIT_APP_SECRET', 'OPENAI_API_KEY'] as const;
 type EnvKeys = (typeof env_keys)[number];
 
 function parseEnv() {
