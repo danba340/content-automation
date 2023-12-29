@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-let env_keys = ['ELEVEN_LABS_API_KEY', 'ASSEMBLY_AI_API_KEY'] as const;
+let env_keys = ['ELEVEN_LABS_API_KEY', 'ASSEMBLY_AI_API_KEY', 'REDDIT_PASSWORD', 'REDDIT_APP_SECRET'] as const;
 type EnvKeys = (typeof env_keys)[number];
 
 function parseEnv() {
@@ -21,3 +21,11 @@ function parseEnv() {
 export const ENV: { [k in EnvKeys]: string } = parseEnv();
 
 export const ELEVEN_LABS_VOICE_NAME = 'nicole'; // Nicole
+
+export const REDDIT_CONFIG = {
+  username: 'barely89',
+  password: ENV.REDDIT_PASSWORD,
+  appId: 'mXjzUAJha_BkrNmJkPCoJg',
+  appSecret: ENV.REDDIT_APP_SECRET,
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/42.0',
+};
