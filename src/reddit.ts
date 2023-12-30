@@ -4,7 +4,7 @@ import { db } from './db.js';
 
 const reddit = new reddit_init(REDDIT_CONFIG);
 
-type RedditPost = {
+export type RedditPost = {
   data: {
     id: string;
     title: string;

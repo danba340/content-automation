@@ -18,6 +18,7 @@
   "dependencies": {
     "axios": "^1.6.3",
     "dotenv": "^16.3.1",
+    "googleapis": "^129.0.0",
     "lowdb": "^7.0.1",
     "openai": "^4.24.1",
     "reddit": "^1.2.1",

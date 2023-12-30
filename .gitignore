@@ -6,3 +6,4 @@ src/projects/*
 !src/projects/demo
 
 remotion/node_modules
+src/media/*
