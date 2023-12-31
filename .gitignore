@@ -7,3 +7,5 @@ src/projects/*
 
 remotion/node_modules
 src/media/*
+
+client_auth_token.json

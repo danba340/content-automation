@@ -39,6 +39,7 @@ export async function dereddit(urlSubReddit: string): Promise<RedditPost[] | nul
       console.log('Is Video');
       return false;
     }
+    // TODO check for CONTENT WARNING
   });
   return posts;
 }

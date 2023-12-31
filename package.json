@@ -20,6 +20,7 @@
     "dotenv": "^16.3.1",
     "googleapis": "^129.0.0",
     "lowdb": "^7.0.1",
+    "node-html-to-image": "^4.0.0",
     "openai": "^4.24.1",
     "reddit": "^1.2.1",
     "subtitle": "^4.2.1"
