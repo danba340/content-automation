@@ -1,5 +1,8 @@
-import { useCurrentFrame } from "remotion";
-import { cleanSpecialChars, frameToMs, transitionAdjustSubtitle } from "./utils";
+import { useCurrentFrame, spring } from "remotion";
+import { cleanSpecialChars, frameToMs, msToFrame, transitionAdjustSubtitle } from "./utils";
+import { loadFont } from "@remotion/google-fonts/Alice";
+import { FPS } from "./config";
+const { fontFamily } = loadFont();
 
 export type WordConfig = {
 	start: number,
@@ -21,15 +24,29 @@ export type WordType = {
 	text: string
 }
 
-export function Word({ word, config }: { config: WordConfig, word: WordType }) {
+export function Word({ word, config }: { word: WordType, config: WordConfig }) {
 
 	const frame = useCurrentFrame();
 	const ms = frameToMs(frame)
+	const wordStartFrame = msToFrame(word.start);
 
-	const { outlineColor, outlineThickness, color, opacity, scale } = transitionAdjustSubtitle(config, word, ms)
+	const { outlineColor, outlineThickness, color, opacity } = transitionAdjustSubtitle(config, word, ms)
 
 	const shouldShow = word.start < ms && word.end > ms
 	const text = cleanSpecialChars(word.text)
+
+	console.log("WS", wordStartFrame)
+
+	const scaleSpring = spring({
+		frame: frame - wordStartFrame,
+		fps: FPS,
+		config: {
+			stiffness: 100,
+		},
+		durationInFrames: 10,
+	});
+	console.log("Word", word.text, "scale", scaleSpring)
+	const scale = scaleSpring * 1000;
 
 	return shouldShow ? (
 		<svg
@@ -38,7 +55,12 @@ export function Word({ word, config }: { config: WordConfig, word: WordType }) {
 				transform: `scale(${scale}%)`,
 			}}
 		>
-			<text x="50%" y="50%" textAnchor='middle'>
+			<text
+				style={{
+					fontFamily,
+					// letterSpacing: "1px"
+				}}
+				x="50%" y="50%" textAnchor='middle'>
 				<tspan
 					style={{
 						fill: color,

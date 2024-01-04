@@ -5,10 +5,10 @@ export function frameToMs(frame: number) {
   return (frame / FPS) * 1000;
 }
 
-// export function msToFrame(ms: number) {
-//   const s = ms / 1000;
-//   return FPS * s;
-// }
+export function msToFrame(ms: number) {
+  const s = ms / 1000;
+  return FPS * s;
+}
 
 export function transitionAdjustSubtitle(config: WordConfig, word: WordType, ms: number): WordConfig {
   const { start, end } = word;

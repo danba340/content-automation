@@ -1,5 +1,7 @@
 // @ts-ignore
 import ElevenLabs from 'elevenlabs-node';
+// @ts-ignore
+import audioconcat from 'audioconcat';
 import { ELEVEN_LABS_VOICE_NAME, ENV } from './config.js';
 
 const VOICENAME_TO_ID = {
@@ -15,6 +17,21 @@ const api = new ElevenLabs({
 
 function toSentencedChunks(text: string, maxLength: number) {
   return text.split('TODO');
+}
+
+export async function mergeAudio(slug: string, paths: string[]): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const path = `./projects/${slug}/voiceover.mp3`;
+    audioconcat(paths)
+      .concat(path)
+      .on('error', function (err: any) {
+        console.error('Error:', err);
+        reject();
+      })
+      .on('end', function () {
+        resolve(path);
+      });
+  });
 }
 
 export async function createVoiceover(textInput: string, slug: string) {

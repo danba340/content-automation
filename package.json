@@ -16,6 +16,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "audioconcat": "^0.1.4",
     "axios": "^1.6.3",
     "dotenv": "^16.3.1",
     "elevenlabs-node": "^2.0.1",

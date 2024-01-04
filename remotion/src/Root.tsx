@@ -10,8 +10,8 @@ export const RemotionRoot: React.FC = () => {
 				component={Video}
 				durationInFrames={240}
 				fps={30}
-				width={1280}
-				height={720}
+				width={1920}
+				height={1080}
 				schema={videoSchema}
 				defaultProps={{
 					title: 'Welcome to Remotion with Tailwind CSS',

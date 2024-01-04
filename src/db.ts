@@ -9,6 +9,7 @@ export type Post = {
   thumbnail: boolean;
   video: boolean;
   uploaded: boolean;
+  shouldUpload: boolean;
 };
 
 const DEFAULT_DATA: {
@@ -32,6 +33,7 @@ const DEFAULT_DATA: {
       thumbnail: false,
       video: false,
       uploaded: false,
+      shouldUpload: false,
     },
   },
 };
@@ -64,6 +66,7 @@ export async function saveRedditPostToDb(redditPost: RedditPost) {
     thumbnail: false,
     video: false,
     uploaded: false,
+    shouldUpload: false,
   };
 
   await db.update(({ posts }) => {

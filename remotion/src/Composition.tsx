@@ -42,9 +42,8 @@ export const Thumbnail: React.FC<z.infer<typeof thumbSchema>> = ({
 }) => {
 	return (
 		<AbsoluteFill style={{ fontFamily, background: BG_BLACK }} className="items-center justify-center">
-			<Img style={{ opacity: 0.5, height: "100%", left: "-12%" }} className='absolute' placeholder={"Girl"} src={staticFile("profile.jpeg")} />
+			<Img style={{ opacity: 0.5, height: "100%", left: "-12%" }} className='absolute' placeholder={"me"} src={staticFile("profile.jpeg")} />
 			<AbsoluteFill className="items-center justify-center">
-
 				<div style={{ background: BG_GREY, height: "98.5vh", width: "65%", right: "3%" }} className='shadow-xl absolute p-8 rounded-xl'>
 					<h1 style={{ color: TEXT_WHITE }} className='text-4xl'>{text}</h1>
 				</div>

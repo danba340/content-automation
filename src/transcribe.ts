@@ -154,14 +154,14 @@ async function getSubtitleFile(transcriptId: string, longestWord: number, fileFo
   return '';
 }
 
-export async function getTranscription(file: string, path: string) {
+export async function getTranscription(in_path: string, out_path: string) {
   // -----------------------------------------------------------------------------
   // Update the file path here, pointing to a local audio or video file.
   // If you don't have one, download a sample file: https://storage.googleapis.com/aai-web-samples/espn-bears.m4a
   // You may also remove the upload step and update the 'audio_url' parameter in the
   // 'transcribeAudio' function to point to a remote audio or video file.
   // -----------------------------------------------------------------------------
-  const uploadUrl = await upload_file(file);
+  const uploadUrl = await upload_file(in_path);
   // const uploadUrl = "https://cdn.assemblyai.com/upload/7bdec7d6-f38a-48c2-a2a1-ae884e4ff286"
   // const uploadUrl = 'https://cdn.assemblyai.com/upload/00eb8e22-432c-41da-9d6a-5a22a06b50b0'
 
@@ -212,20 +212,19 @@ export async function getTranscription(file: string, path: string) {
       await new Promise((resolve) => setTimeout(resolve, 3000));
     }
   }
+  await fs.promises.writeFile(out_path, String(script));
+  console.log('Wrote transcript');
+
+  return out_path;
 
   // @ts-ignore
-  const longestWord = Math.max(...script.split(' ').map((w) => w.length));
+  // const longestWord = Math.max(...script.split(' ').map((w) => w.length));
 
-  let subtitle = await getSubtitleFile(transcriptId, longestWord);
+  // let subtitle = await getSubtitleFile(transcriptId, longestWord);
 
   // last word of subtitle missing, TODO is it always the case
-  subtitle = fillLastScriptWordIsInSubtitles(subtitle, script);
+  // subtitle = fillLastScriptWordIsInSubtitles(subtitle, script);
 
   // Print the completed transcript object
-  console.log('Transcript done');
-
-  await fs.promises.writeFile(path, String(subtitle));
-  console.log('Wrote subtitle');
-
-  return path;
+  // console.log('Transcript done');
 }

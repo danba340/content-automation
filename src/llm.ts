@@ -22,5 +22,5 @@ export async function shortenForTitle(original: string) {
   const full_prompt = pre_prompt + original;
   const result = await prompt(full_prompt);
   console.log('Shortened title:', result);
-  return result;
+  return result?.choices[0].message.content;
 }
