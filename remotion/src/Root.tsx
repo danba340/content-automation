@@ -3,6 +3,7 @@ import { Video, Thumbnail, videoSchema, thumbSchema } from './Composition';
 import './style.css';
 
 export const RemotionRoot: React.FC = () => {
+
 	return (
 		<>
 			<Composition
@@ -15,7 +16,9 @@ export const RemotionRoot: React.FC = () => {
 				schema={videoSchema}
 				defaultProps={{
 					title: 'Welcome to Remotion with Tailwind CSS',
-					text: "This is text"
+					text: "This is text",
+					durationInSeconds: 60,
+					voiceOverPath: ""
 				}}
 			/>
 			<Composition

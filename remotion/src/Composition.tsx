@@ -1,10 +1,13 @@
-import { AbsoluteFill, Img, staticFile, Video as RVideo } from 'remotion';
+import { AbsoluteFill, Img, staticFile, Video as RVideo, Sequence } from 'remotion';
 import { z } from 'zod';
 import { loadFont } from "@remotion/google-fonts/IBMPlexSans";
 const { fontFamily } = loadFont();
 import { getAvailableFonts } from "@remotion/google-fonts";
 import { RedditCard } from './RedditCard';
 import { Subtitles } from './Subtitles';
+import { Music } from './Music';
+import { msToFrame } from './utils';
+import { Voiceover } from './Voiceover';
 
 console.log(getAvailableFonts());
 
@@ -16,20 +19,29 @@ const TEXT_WHITE = "rgb(215, 218, 220)"
 export const videoSchema = z.object({
 	title: z.string(),
 	text: z.string(),
+	voiceOverPath: z.string(),
+	durationInSeconds: z.number(),
 });
 
 export const Video: React.FC<z.infer<typeof videoSchema>> = ({
 	title,
-	text
+	text,
+	durationInSeconds,
+	voiceOverPath,
 }) => {
+	const durationInFrames = msToFrame(durationInSeconds * 1000);
 	return (
-		<AbsoluteFill style={{ fontFamily }} className="bg-gray-100 items-center justify-center">
-			<AbsoluteFill>
-				<RVideo src={staticFile("cake.mp4")} />
+		<Sequence durationInFrames={durationInFrames} >
+			<AbsoluteFill style={{ fontFamily }} className="bg-gray-100 items-center justify-center">
+				<AbsoluteFill>
+					<RVideo src={staticFile("cake.mp4")} />
+				</AbsoluteFill>
+				<RedditCard />
+				<Subtitles />
+				<Music />
+				<Voiceover path={voiceOverPath} />
 			</AbsoluteFill>
-			<RedditCard />
-			<Subtitles />
-		</AbsoluteFill>
+		</Sequence>
 	);
 };
 

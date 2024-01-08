@@ -1,8 +1,8 @@
-import { useCurrentFrame, spring, useVideoConfig } from "remotion"
+import { useCurrentFrame } from "remotion"
 import { frameToMs } from "./utils"
 import { Word, WordConfig, WordType } from "./Word"
-import { WordTriplet } from "./WordTriple"
-import { FPS } from "./config"
+// import { WordTriplet } from "./WordTriple"
+// import { FPS } from "./config"
 
 const words: WordType[] = [
 	{
@@ -32,11 +32,11 @@ const words: WordType[] = [
 	},
 ]
 
-const word: WordType = {
-	start: 0,
-	end: 9999,
-	text: "TEST SOME Text"
-}
+// const word: WordType = {
+// 	start: 0,
+// 	end: 9999,
+// 	text: "TEST SOME Text"
+// }
 
 const config: WordConfig = {
 	start: 0,
