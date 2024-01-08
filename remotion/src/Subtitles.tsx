@@ -4,33 +4,33 @@ import { Word, WordConfig, WordType } from "./Word"
 // import { WordTriplet } from "./WordTriple"
 // import { FPS } from "./config"
 
-const words: WordType[] = [
-	{
-		start: 0,
-		end: 500,
-		text: "First"
-	},
-	{
-		start: 501,
-		end: 1000,
-		text: "Second"
-	},
-	{
-		start: 1001,
-		end: 1500,
-		text: "Third"
-	},
-	{
-		start: 1501,
-		end: 2000,
-		text: "Forth"
-	},
-	{
-		start: 2001,
-		end: 2500,
-		text: "Fifth"
-	},
-]
+// const words: WordType[] = [
+// 	{
+// 		start: 0,
+// 		end: 500,
+// 		text: "First"
+// 	},
+// 	{
+// 		start: 501,
+// 		end: 1000,
+// 		text: "Second"
+// 	},
+// 	{
+// 		start: 1001,
+// 		end: 1500,
+// 		text: "Third"
+// 	},
+// 	{
+// 		start: 1501,
+// 		end: 2000,
+// 		text: "Forth"
+// 	},
+// 	{
+// 		start: 2001,
+// 		end: 2500,
+// 		text: "Fifth"
+// 	},
+// ]
 
 // const word: WordType = {
 // 	start: 0,
@@ -67,7 +67,7 @@ function getIndexOfClosestWord(words: WordType[], ms: number) {
 	return closestIndex;
 }
 
-export function Subtitles() {
+export function Subtitles({ words }: { words: WordType[] }) {
 	const frame = useCurrentFrame();
 	const ms = frameToMs(frame);
 

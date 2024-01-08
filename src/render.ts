@@ -12,10 +12,12 @@ type WordType = {
   text: string;
 };
 
-export async function renderVideo(outPath: string, duration: number, title: string, transcript: WordType[]) {
+export async function renderVideo(outPath: string, duration: number, introDuration: number, title: string, transcript: WordType[]) {
   let durationInFrames = msToFrame(duration);
+  let introDurationInFrames = msToFrame(introDuration);
   let props = {
     durationInFrames,
+    introDurationInFrames,
     title,
     transcript,
   };

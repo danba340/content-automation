@@ -1,3 +1,5 @@
-export function RedditCard() {
-	return "This is RedditCard"
+export function RedditCard({ title }: { title: string }) {
+	return (
+		<div>{title}</div>
+	)
 }

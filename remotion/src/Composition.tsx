@@ -6,7 +6,6 @@ import { getAvailableFonts } from "@remotion/google-fonts";
 import { RedditCard } from './RedditCard';
 import { Subtitles } from './Subtitles';
 import { Music } from './Music';
-import { msToFrame } from './utils';
 import { Voiceover } from './Voiceover';
 
 console.log(getAvailableFonts());
@@ -24,28 +23,27 @@ export const videoSchema = z.object({
 		text: z.string()
 	}).array(),
 	voiceOverPath: z.string(),
-	durationInSeconds: z.number(),
+	introDurationInFrames: z.number(),
 });
 
 export const Video: React.FC<z.infer<typeof videoSchema>> = ({
 	title,
 	transcript,
-	durationInSeconds,
+	introDurationInFrames,
 	voiceOverPath,
 }) => {
-	const durationInFrames = msToFrame(durationInSeconds * 1000);
 	return (
-		<Sequence durationInFrames={durationInFrames} >
-			<AbsoluteFill style={{ fontFamily }} className="bg-gray-100 items-center justify-center">
-				<AbsoluteFill>
-					<RVideo src={staticFile("cake.mp4")} />
-				</AbsoluteFill>
-				<RedditCard />
-				<Subtitles />
-				<Music />
-				<Voiceover path={voiceOverPath} />
+		<AbsoluteFill style={{ fontFamily }} className="bg-gray-100 items-center justify-center">
+			<AbsoluteFill>
+				<RVideo src={staticFile("cake.mp4")} />
 			</AbsoluteFill>
-		</Sequence>
+			<Sequence durationInFrames={introDurationInFrames} >
+				<RedditCard title={title} />
+			</Sequence>
+			<Subtitles words={transcript} />
+			<Music />
+			<Voiceover path={voiceOverPath} />
+		</AbsoluteFill>
 	);
 };
 

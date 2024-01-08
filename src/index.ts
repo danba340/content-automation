@@ -115,7 +115,7 @@ async function main() {
       const transcriptRaw = (await fs.promises.readFile(transcriptPath)).toString();
       const transcript = JSON.parse(transcriptRaw);
       try {
-        await renderVideo(videoFilePath, duration, post.short_title, transcript); // TODO add intro duration
+        await renderVideo(videoFilePath, duration, introDuration, post.short_title, transcript); // TODO add intro duration
         // Update db
         await updatePostFlagInDb(id, 'video', true);
       } catch (e) {

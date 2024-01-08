@@ -17,7 +17,7 @@ export const RemotionRoot: React.FC = () => {
 				defaultProps={{
 					title: 'Welcome to Remotion with Tailwind CSS',
 					transcript: [],
-					durationInSeconds: 60,
+					introDurationInFrames: 30 * 5, // 5s
 					voiceOverPath: ""
 				}}
 			/>
