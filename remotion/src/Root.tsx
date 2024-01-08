@@ -7,7 +7,7 @@ export const RemotionRoot: React.FC = () => {
 	return (
 		<>
 			<Composition
-				id="video"
+				id="video-comp-id"
 				component={Video}
 				durationInFrames={240}
 				fps={30}
@@ -16,13 +16,13 @@ export const RemotionRoot: React.FC = () => {
 				schema={videoSchema}
 				defaultProps={{
 					title: 'Welcome to Remotion with Tailwind CSS',
-					text: "This is text",
+					transcript: [],
 					durationInSeconds: 60,
 					voiceOverPath: ""
 				}}
 			/>
 			<Composition
-				id="thumbnail"
+				id="thumbnail-comp-id"
 				component={Thumbnail}
 				durationInFrames={1}
 				fps={30}

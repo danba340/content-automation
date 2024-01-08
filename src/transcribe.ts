@@ -1,11 +1,12 @@
 import fs from 'fs';
 import axios, { isAxiosError } from 'axios';
 import { parseSync, stringifySync } from 'subtitle';
+import { ENV } from './config.js';
 
 const BASE_URL = 'https://api.assemblyai.com/v2';
 
 const HEADERS = {
-  authorization: 'Bearer ' + process.env['ASSEMBLYAI_TOKEN'],
+  authorization: 'Bearer ' + ENV.ASSEMBLY_AI_API_KEY,
 };
 
 function colorLooper(colors: string[]) {
@@ -168,7 +169,7 @@ export async function getTranscription(in_path: string, out_path: string) {
   // If the upload fails, log an error and return
   if (!uploadUrl) {
     console.error(new Error('Upload failed. Please try again.'));
-    return;
+    process.exit(1);
   }
 
   const data = {
@@ -184,8 +185,11 @@ export async function getTranscription(in_path: string, out_path: string) {
 
   const transcriptId = response?.data.id;
   console.log('Transcription ID', transcriptId);
-  // const transcriptId = '6zyfj8qq0d-0300-4dee-9304-b0dd120f55b8'
-  if (!transcriptId) throw new Error('No transcript id');
+  // const transcriptId = '6zyfj8qq0d-0300-4dee-9304-b0dd120f55b8';
+  if (!transcriptId) {
+    console.log('No transcript id');
+    process.exit(1);
+  }
   const pollingEndpoint = `https://api.assemblyai.com/v2/transcript/${transcriptId}`;
 
   let script;
@@ -202,20 +206,20 @@ export async function getTranscription(in_path: string, out_path: string) {
     const transcriptionResult = pollingResponse?.data;
 
     if (transcriptionResult.status === 'completed') {
-      script = transcriptionResult.text;
-      console.log('Transcribed text', script);
-      console.log('Transcription done. Fetching subtitle...');
+      script = transcriptionResult.words;
+      console.log('Transcription done.');
       break;
     } else if (transcriptionResult.status === 'error') {
-      throw new Error(`Transcription failed: ${transcriptionResult.error}`);
+      console.log(`Transcription failed: ${transcriptionResult.error}`);
+      process.exit(1);
     } else {
       await new Promise((resolve) => setTimeout(resolve, 3000));
     }
   }
-  await fs.promises.writeFile(out_path, String(script));
-  console.log('Wrote transcript');
+  await fs.promises.writeFile(out_path, JSON.stringify(script));
+  console.log('Wrote transcript to', out_path);
 
-  return out_path;
+  return true;
 
   // @ts-ignore
   // const longestWord = Math.max(...script.split(' ').map((w) => w.length));

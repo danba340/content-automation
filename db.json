@@ -112,13 +112,16 @@
           "is_video": false
         }
       },
-      "blocked": false,
-      "voiceover": false,
-      "transcript": false,
-      "thumbnail": false,
-      "video": false,
-      "uploaded": false,
-      "shouldUpload": false
+      "flags": {
+        "blocked": false,
+        "voiceover": true,
+        "transcript": true,
+        "thumbnail": false,
+        "video": false,
+        "uploaded": false,
+        "shouldUpload": false
+      },
+      "short_title": "My husky saved my life"
     }
   }
 }

@@ -18,14 +18,18 @@ const TEXT_WHITE = "rgb(215, 218, 220)"
 
 export const videoSchema = z.object({
 	title: z.string(),
-	text: z.string(),
+	transcript: z.object({
+		start: z.number(),
+		end: z.number(),
+		text: z.string()
+	}).array(),
 	voiceOverPath: z.string(),
 	durationInSeconds: z.number(),
 });
 
 export const Video: React.FC<z.infer<typeof videoSchema>> = ({
 	title,
-	text,
+	transcript,
 	durationInSeconds,
 	voiceOverPath,
 }) => {

@@ -1,23 +1,16 @@
-// @ts-ignore
-import ElevenLabs from 'elevenlabs-node';
+import axios from 'axios';
 // @ts-ignore
 import audioconcat from 'audioconcat';
+
+import fs from 'fs';
 import { ELEVEN_LABS_VOICE_NAME, ENV } from './config.js';
+import { expandAgeSyntax, preprocessText, toSentencedChunks } from './text.js';
 
 const VOICENAME_TO_ID = {
   nicole: 'piTKgcLEGmPE4e6mEKli',
 } as const;
 
 const voiceId = VOICENAME_TO_ID[ELEVEN_LABS_VOICE_NAME];
-
-const api = new ElevenLabs({
-  apiKey: ENV.ELEVEN_LABS_API_KEY,
-  voiceId,
-});
-
-function toSentencedChunks(text: string, maxLength: number) {
-  return text.split('TODO');
-}
 
 export async function mergeAudio(slug: string, paths: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -34,31 +27,39 @@ export async function mergeAudio(slug: string, paths: string[]): Promise<string>
   });
 }
 
-export async function createVoiceover(textInput: string, slug: string) {
+export async function createVoiceover(title: string, content: string, slug: string) {
+  const cwd = process.cwd();
   const files = [];
-  const maxLength = 1000;
-  let chunks = toSentencedChunks(textInput, maxLength);
+  const maxLength = 100;
+  let chunks = toSentencedChunks(preprocessText(content), maxLength);
+  chunks.unshift(preprocessText(title) + '.');
+  console.log(`Voiceover split into ${chunks.length}`);
   for (const [i, chunk] of Object.entries(chunks)) {
-    const fileName = `./projects/${slug}/voiceover-${i}.mp3`;
+    console.log(`Generating chunk ${parseInt(i) + 1}/${chunks.length}`);
+    const fileName = `${cwd}/projects/${slug}/voiceover-${parseInt(i) + 1}.mp3`;
     files.push(fileName);
-    await api
-      .textToSpeech({
-        // Required Parameters
-        fileName,
-        textInput: chunk,
 
-        // Optional Parameters
-        voiceId,
-        stability: 0.5, // The stability for the converted speech
-        similarityBoost: 0.5, // The similarity boost for the converted speech
-        modelId: 'elevenlabs_multilingual_v2', // The ElevenLabs Model ID
-        style: 1, // The style exaggeration for the converted speech
-        speakerBoost: true, // The speaker boost for the converted speech
-      })
-      .catch((err: unknown) => {
-        console.log('Elevenlabs api err', err);
-        process.exit(1);
-      });
+    const apiRequestOptions = {
+      method: 'POST',
+      url: `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+      headers: {
+        accept: 'audio/mpeg',
+        'content-type': 'application/json',
+        'xi-api-key': ENV.ELEVEN_LABS_API_KEY,
+      },
+      data: {
+        text: chunk,
+      },
+      responseType: 'arraybuffer' as const, // To receive binary data in response
+    };
+
+    try {
+      const apiResponse = await axios.request(apiRequestOptions);
+      await fs.promises.writeFile(fileName, apiResponse.data);
+    } catch (e) {
+      console.log('Elevenlabs API Error', e);
+      process.exit(1);
+    }
   }
   return files;
 }

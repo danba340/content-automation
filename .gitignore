@@ -2,7 +2,7 @@ node_modules
 .DS_Store
 .env
 
-src/projects/*
+src/projects/**/*
 !src/projects/demo
 
 remotion/node_modules
