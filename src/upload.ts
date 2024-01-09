@@ -23,14 +23,14 @@ const SCOPES = ['https://www.googleapis.com/auth/youtube.upload'];
 const TOKEN_PATH = '../' + 'client_oauth_token.json';
 
 export function uploadVideo(videoFilePath: string, thumbFilePath: string, title: string, description: string, tags: string) {
-  assert(fs.existsSync(videoFilePath));
-  assert(fs.existsSync(thumbFilePath));
+  assert(fs.existsSync(videoFilePath), `No video in path ${videoFilePath}`);
+  assert(fs.existsSync(thumbFilePath), `No thumbnail in path ${thumbFilePath}`);
 
   // Load client secrets from a local file.
   fs.readFile('../client_secret.json', function processClientSecrets(err, content) {
     if (err) {
       console.log('Error loading client secret file: ' + err);
-      return;
+      process.exit(1);
     }
     // Authorize a client with the loaded credentials, then call the YouTube API.
     authorize(JSON.parse(content.toString()), (auth: Auth.OAuth2Client) => uploadVideoAuthed(auth, videoFilePath, thumbFilePath, title, description, tags));

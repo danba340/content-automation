@@ -7,7 +7,7 @@ function parseEnv() {
   return env_keys.reduce((acc, env_key) => {
     const env_val = process.env[env_key];
     if (!env_val) {
-      console.error('Misisng env var for:', env_key);
+      console.error('Missing env var for:', env_key);
       process.exit(1);
     }
     return {

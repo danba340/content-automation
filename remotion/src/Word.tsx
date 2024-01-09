@@ -1,7 +1,7 @@
 import { useCurrentFrame, spring } from "remotion";
 import { cleanSpecialChars, frameToMs, msToFrame, transitionAdjustSubtitle } from "./utils";
-import { loadFont } from "@remotion/google-fonts/Alice";
 import { FPS } from "./config";
+import { loadFont } from "@remotion/google-fonts/Alice";
 const { fontFamily } = loadFont();
 
 export type WordConfig = {
@@ -42,13 +42,16 @@ export function Word({ word, config }: { word: WordType, config: WordConfig }) {
 		fps: FPS,
 		config: {
 			stiffness: 100,
+			damping: 15,
+			// overshootClamping: true
 		},
-		durationInFrames: 10,
+		durationInFrames: 6,
 	});
 	console.log("Word", word.text, "scale", scaleSpring)
 	const scale = scaleSpring * 1000;
 
 	return shouldShow ? (
+
 		<svg
 			style={{
 				overflow: "visible",

@@ -114,8 +114,10 @@ async function main() {
       const introDuration = await mp3Seconds(introVoiceOverPath);
       const transcriptRaw = (await fs.promises.readFile(transcriptPath)).toString();
       const transcript = JSON.parse(transcriptRaw);
+      await fs.promises.rm(`${cwd}/../remotion/public/voiceover.mp3`);
+      await fs.promises.cp(voiceOverPath, `${cwd}/../remotion/public/voiceover.mp3`);
       try {
-        await renderVideo(videoFilePath, duration, introDuration, post.short_title, transcript); // TODO add intro duration
+        await renderVideo(videoFilePath, duration, introDuration, post.short_title, transcript);
         // Update db
         await updatePostFlagInDb(id, 'video', true);
       } catch (e) {

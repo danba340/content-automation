@@ -21,7 +21,7 @@ export function Music() {
 		let currOffsetFrames = msToFrame(currOffsetSeconds * 1000)
 		offsetSeconds += track.seconds;
 		return (<Sequence from={currOffsetFrames}>
-			<Audio placeholder={null} src={staticFile(`/music/${track.name}.mp3`)} />
+			<Audio volume={0.2} placeholder={null} src={staticFile(`/music/${track.name}.mp3`)} />
 		</Sequence>)
 	})
 }

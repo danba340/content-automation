@@ -34,15 +34,19 @@ export const Video: React.FC<z.infer<typeof videoSchema>> = ({
 }) => {
 	return (
 		<AbsoluteFill style={{ fontFamily }} className="bg-gray-100 items-center justify-center">
+			<Music />
+			<Voiceover path={voiceOverPath} />
 			<AbsoluteFill>
 				<RVideo src={staticFile("cake.mp4")} />
 			</AbsoluteFill>
 			<Sequence durationInFrames={introDurationInFrames} >
-				<RedditCard title={title} />
+				<div className='flex w-full justify-center items-center'>
+					<RedditCard title={title} />
+				</div>
 			</Sequence>
-			<Subtitles words={transcript} />
-			<Music />
-			<Voiceover path={voiceOverPath} />
+			<div className='flex w-full justify-center items-end h-full'>
+				<Subtitles words={transcript} />
+			</div>
 		</AbsoluteFill>
 	);
 };

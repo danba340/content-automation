@@ -41,8 +41,8 @@ import { Word, WordConfig, WordType } from "./Word"
 const config: WordConfig = {
 	start: 0,
 	end: 9999,
-	transitionInDuration: 10,
-	transitionOutDuration: 10,
+	transitionInDuration: 0,
+	transitionOutDuration: 0,
 	transitionInStyle: "fade",
 	transitionOutStyle: "fade",
 	outlineColor: "black",
@@ -80,7 +80,7 @@ export function Subtitles({ words }: { words: WordType[] }) {
 					return null
 				}
 
-				return <Word key={i} word={w} config={config} />
+				return <Word key={w.text + i} word={w} config={config} />
 			})}
 		</>
 	)
