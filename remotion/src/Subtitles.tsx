@@ -59,7 +59,7 @@ function getIndexOfClosestWord(words: WordType[], ms: number) {
 		let distanceToStart = Math.abs(ms - word.start);
 		let distanceToEnd = Math.abs(ms - word.end);
 		let msToWord = Math.min(distanceToStart, distanceToEnd)
-		if (msToWord <= closestMs) {
+		if (msToWord <= closestMs && word.end > ms) {
 			closestIndex = parseInt(i);
 			closestMs = msToWord;
 		}

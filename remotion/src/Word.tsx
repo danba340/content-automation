@@ -32,7 +32,7 @@ export function Word({ word, config }: { word: WordType, config: WordConfig }) {
 
 	const { outlineColor, outlineThickness, color, opacity } = transitionAdjustSubtitle(config, word, ms)
 
-	const shouldShow = word.start < ms && word.end > ms
+	// const shouldShow = word.start < ms && word.end > ms
 	const text = cleanSpecialChars(word.text)
 
 	console.log("WS", wordStartFrame)
@@ -41,21 +41,22 @@ export function Word({ word, config }: { word: WordType, config: WordConfig }) {
 		frame: frame - wordStartFrame,
 		fps: FPS,
 		config: {
-			stiffness: 100,
-			damping: 15,
+			stiffness: 110,
+			// damping: 15,
 			// overshootClamping: true
 		},
 		durationInFrames: 6,
 	});
 	console.log("Word", word.text, "scale", scaleSpring)
-	const scale = scaleSpring * 1000;
+	const scaleFactor = 200
+	const scale = scaleSpring * scaleFactor;
+	const baseScale = scaleFactor * 3;
 
-	return shouldShow ? (
-
+	return (//shouldShow ? (
 		<svg
 			style={{
 				overflow: "visible",
-				transform: `scale(${scale}%)`,
+				transform: `scale(${baseScale + scale}%)`,
 			}}
 		>
 			<text
@@ -78,5 +79,5 @@ export function Word({ word, config }: { word: WordType, config: WordConfig }) {
 				</tspan>
 			</text>
 		</svg>
-	) : null
+	)// : null
 }
