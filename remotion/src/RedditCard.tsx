@@ -28,7 +28,7 @@ export function RedditCard({ title, introDurationInFrames }: { title: string, in
 					</div>
 				</div>
 				<div style={{ color: TEXT_WHITE }} className=''>
-					<Img className='pl-2' style={{ height: 60 }} placeholder={""} src={staticFile("cardbottom.png")} />
+					<Img className='ml-[-18px]' style={{ height: 60 }} placeholder={""} src={staticFile("cardbottom.png")} />
 				</div>
 			</div>
 		</AbsoluteFill>

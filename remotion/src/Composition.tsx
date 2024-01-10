@@ -75,7 +75,7 @@ export const Thumbnail: React.FC<z.infer<typeof thumbSchema>> = ({
 						</div>
 					</div>
 					<div style={{ color: TEXT_WHITE }} className=''>
-						<Img className='pl-2' style={{ height: 60 }} placeholder={""} src={staticFile("cardbottom.png")} />
+						<Img className='ml-[-18px]' style={{ height: 60 }} placeholder={""} src={staticFile("cardbottom.png")} />
 					</div>
 				</div>
 			</AbsoluteFill>

@@ -10,7 +10,7 @@ const tracks = [
 	{ name: 6, seconds: 180 + 34 },
 	{ name: 7, seconds: 143 },
 	{ name: 8, seconds: 181 },
-].sort(() => Math.random() - 0.5)
+]//.sort(() => Math.random() - 0.5)
 
 
 
