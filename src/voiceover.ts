@@ -4,7 +4,7 @@ import audioconcat from 'audioconcat';
 
 import fs from 'fs';
 import { ELEVEN_LABS_VOICE_NAME, ENV } from './config.js';
-import { expandAgeSyntax, preprocessText, toSentencedChunks } from './text.js';
+import { preprocessTextVoiceover, toSentencedChunks } from './text.js';
 
 const VOICENAME_TO_ID = {
   nicole: 'piTKgcLEGmPE4e6mEKli',
@@ -31,8 +31,8 @@ export async function createVoiceover(title: string, content: string, slug: stri
   const cwd = process.cwd();
   const files = [];
   const maxLength = 100;
-  let chunks = toSentencedChunks(preprocessText(content), maxLength);
-  chunks.unshift(preprocessText(title) + '.');
+  let chunks = toSentencedChunks(preprocessTextVoiceover(content), maxLength);
+  chunks.unshift(preprocessTextVoiceover(title) + '.');
   console.log(`Voiceover split into ${chunks.length}`);
   for (const [i, chunk] of Object.entries(chunks)) {
     console.log(`Generating chunk ${parseInt(i) + 1}/${chunks.length}`);

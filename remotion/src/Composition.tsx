@@ -7,6 +7,7 @@ import { RedditCard } from './RedditCard';
 import { Subtitles } from './Subtitles';
 import { Music } from './Music';
 import { Voiceover } from './Voiceover';
+import { EndScreen } from './EndScreen';
 
 console.log(getAvailableFonts());
 
@@ -24,21 +25,23 @@ export const videoSchema = z.object({
 	}).array(),
 	voiceOverPath: z.string(),
 	introDurationInFrames: z.number(),
+	durationInFramesInput: z.string(),
 });
 
 export const Video: React.FC<z.infer<typeof videoSchema>> = ({
 	title,
 	transcript,
 	introDurationInFrames,
+	durationInFramesInput,
 	voiceOverPath,
 }) => {
 	title = title.length > 207 ? title.substring(0, 207) + "..." : title;
 	return (
 		<AbsoluteFill style={{ fontFamily }} className="bg-gray-100 items-center justify-center">
-			<Music />
+			<Music seed={parseInt(durationInFramesInput)} />
 			<Voiceover path={voiceOverPath} />
 			<AbsoluteFill>
-				<RVideo src={staticFile("cake.mp4")} />
+				<RVideo startFrom={11 * 30} src={staticFile("cake.mp4")} />
 			</AbsoluteFill>
 			<Sequence durationInFrames={introDurationInFrames} >
 				<div className='flex w-full justify-center items-center'>
@@ -48,6 +51,7 @@ export const Video: React.FC<z.infer<typeof videoSchema>> = ({
 			<div className='flex w-full justify-center items-end h-full mb-12'>
 				<Subtitles words={transcript} />
 			</div>
+			<EndScreen durationInFramesInput={parseInt(durationInFramesInput)} />
 		</AbsoluteFill>
 	);
 };

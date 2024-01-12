@@ -2,8 +2,8 @@ node_modules
 .DS_Store
 .env
 
-src/projects/**/*
-!src/projects/demo
+projects/**/*
+!projects/demo
 
 remotion/node_modules
 src/media/*
@@ -13,3 +13,5 @@ client_auth_token.json
 remotion/node_modules
 remotion/public/*
 remotion/out
+
+client_oauth_token.json

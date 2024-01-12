@@ -14,3 +14,8 @@ If you have any business inquiries, feel free to email me at realstoriesnicole@g
 
 # Good first video
 https://www.reddit.com/r/truestory/comments/wmf5g7/my_husky_saved_my_life/
+
+# AssemblyAI
+danba340@gmail.com
+S*********k
+

@@ -20,20 +20,17 @@ type Credentials = {
 
 // If modifying these scopes, delete your previously saved credentials in client_oauth_token.json
 const SCOPES = ['https://www.googleapis.com/auth/youtube.upload'];
-const TOKEN_PATH = '../' + 'client_oauth_token.json';
+const TOKEN_PATH = `${process.cwd()}/client_oauth_token.json`;
 
-export function uploadVideo(videoFilePath: string, thumbFilePath: string, title: string, description: string, tags: string) {
+export async function uploadVideo(videoFilePath: string, thumbFilePath: string, title: string, description: string, tags: string) {
   assert(fs.existsSync(videoFilePath), `No video in path ${videoFilePath}`);
   assert(fs.existsSync(thumbFilePath), `No thumbnail in path ${thumbFilePath}`);
 
   // Load client secrets from a local file.
-  fs.readFile('../client_secret.json', function processClientSecrets(err, content) {
-    if (err) {
-      console.log('Error loading client secret file: ' + err);
-      process.exit(1);
-    }
-    // Authorize a client with the loaded credentials, then call the YouTube API.
-    authorize(JSON.parse(content.toString()), (auth: Auth.OAuth2Client) => uploadVideoAuthed(auth, videoFilePath, thumbFilePath, title, description, tags));
+  const content = fs.readFileSync(`${process.cwd()}/client_secret.json`);
+  // Authorize a client with the loaded credentials, then call the YouTube API.
+  return new Promise<void>((resolve, reject) => {
+    authorize(JSON.parse(content.toString()), (auth: Auth.OAuth2Client) => uploadVideoAuthed(auth, videoFilePath, thumbFilePath, title, description, tags, resolve, reject), reject);
   });
 }
 
@@ -42,9 +39,9 @@ export function uploadVideo(videoFilePath: string, thumbFilePath: string, title:
  *
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-function uploadVideoAuthed(auth: Auth.OAuth2Client, videoFilePath: string, thumbFilePath: string, title: string, description: string, tags: string) {
+function uploadVideoAuthed(auth: Auth.OAuth2Client, videoFilePath: string, thumbFilePath: string, title: string, description: string, tags: string, resolve: () => void, reject: () => void) {
   const service = google.youtube('v3');
-
+  console.log('Authed upload starting');
   service.videos.insert(
     {
       auth,
@@ -54,7 +51,7 @@ function uploadVideoAuthed(auth: Auth.OAuth2Client, videoFilePath: string, thumb
           title,
           description,
           tags: tags.split(','),
-          categoryId: 'Education',
+          categoryId: '24',
           defaultLanguage: 'en',
           defaultAudioLanguage: 'en',
         },
@@ -69,6 +66,7 @@ function uploadVideoAuthed(auth: Auth.OAuth2Client, videoFilePath: string, thumb
     function (err, response) {
       if (err) {
         console.log('The API returned an error: ' + err);
+        reject();
         return;
       }
       console.log(response!.data);
@@ -76,7 +74,7 @@ function uploadVideoAuthed(auth: Auth.OAuth2Client, videoFilePath: string, thumb
       console.log('Video uploaded. Uploading the thumbnail now.');
       service.thumbnails.set(
         {
-          auth: auth,
+          auth,
           videoId: response!.data.id as string,
           media: {
             body: fs.createReadStream(thumbFilePath),
@@ -85,9 +83,11 @@ function uploadVideoAuthed(auth: Auth.OAuth2Client, videoFilePath: string, thumb
         function (err, response) {
           if (err) {
             console.log('The API returned an error: ' + err);
+            reject();
             return;
           }
           console.log(response!.data);
+          resolve();
         },
       );
     },
@@ -101,21 +101,20 @@ function uploadVideoAuthed(auth: Auth.OAuth2Client, videoFilePath: string, thumb
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-function authorize(credentials: Credentials, callback: (auth: OAuth2Client) => void) {
+function authorize(credentials: Credentials, callback: (auth: OAuth2Client) => void, reject: () => void) {
   const clientSecret = credentials.installed.client_secret;
   const clientId = credentials.installed.client_id;
   const redirectUrl = credentials.installed.redirect_uris[0];
   const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
 
   // Check if we have previously stored a token.
-  fs.readFile(TOKEN_PATH, function (err, token) {
-    if (err) {
-      getNewToken(oauth2Client, callback);
-    } else {
-      oauth2Client.credentials = JSON.parse(token.toString());
-      callback(oauth2Client);
-    }
-  });
+  const token = fs.readFileSync(TOKEN_PATH);
+  if (!token || !token.toString().trim().length) {
+    getNewToken(oauth2Client, callback, reject);
+  } else {
+    oauth2Client.credentials = JSON.parse(token.toString());
+    callback(oauth2Client);
+  }
 }
 
 /**
@@ -126,7 +125,7 @@ function authorize(credentials: Credentials, callback: (auth: OAuth2Client) => v
  * @param {getEventsCallback} callback The callback to call with the authorized
  *     client.
  */
-function getNewToken(oauth2Client: OAuth2Client, callback: (auth: OAuth2Client) => void) {
+function getNewToken(oauth2Client: OAuth2Client, callback: (auth: OAuth2Client) => void, reject: () => void) {
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES,
@@ -141,6 +140,7 @@ function getNewToken(oauth2Client: OAuth2Client, callback: (auth: OAuth2Client) 
     oauth2Client.getToken(code, function (err, token) {
       if (err) {
         console.log('Error while trying to retrieve access token', err);
+        reject();
         return;
       }
       oauth2Client.credentials = token!;
@@ -156,8 +156,6 @@ function getNewToken(oauth2Client: OAuth2Client, callback: (auth: OAuth2Client) 
  * @param {Object} token The token to store to disk.
  */
 function storeToken(token: Credentials) {
-  fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-    if (err) throw err;
-    console.log('Token stored to ' + TOKEN_PATH);
-  });
+  fs.writeFileSync(TOKEN_PATH, JSON.stringify(token));
+  console.log('Token stored to ' + TOKEN_PATH);
 }

@@ -1,19 +1,12 @@
 import { JSONFilePreset } from 'lowdb/node';
 import { RedditPost } from './reddit.js';
 
-type PostBooleanKeys = 'blocked' | 'voiceover' | 'transcript' | 'thumbnail' | 'video' | 'uploaded' | 'shouldUpload';
+type PostBooleanKeys = 'blocked' | 'voiceover' | 'transcript' | 'thumbnail' | 'video' | 'uploaded';
 
 export type Post = {
   reddit: RedditPost;
   flags: { [k in PostBooleanKeys]: boolean };
   short_title: string;
-  // blocked: boolean;
-  // voiceover: boolean;
-  // transcript: boolean;
-  // thumbnail: boolean;
-  // video: boolean;
-  // uploaded: boolean;
-  // shouldUpload: boolean;
 };
 
 const DEFAULT_DATA: {
@@ -40,7 +33,6 @@ const DEFAULT_DATA: {
         thumbnail: false,
         video: false,
         uploaded: false,
-        shouldUpload: false,
       },
     },
   },
@@ -76,7 +68,6 @@ export async function saveRedditPostToDb(redditPost: RedditPost) {
       thumbnail: false,
       video: false,
       uploaded: false,
-      shouldUpload: false,
     },
   };
 

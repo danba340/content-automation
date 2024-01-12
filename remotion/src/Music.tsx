@@ -12,16 +12,25 @@ const tracks = [
 	{ name: 8, seconds: 181 },
 ]//.sort(() => Math.random() - 0.5)
 
+function getPredictableRandomTrackIndex(seed: number) {
+	return seed % tracks.length;
+}
 
+function arrayRotate(arr: any[], times: number) {
+	arr.push(arr.shift());
+	return arr;
+}
 
-export function Music() {
+export function Music({ seed }: { seed: number }) {
+	let rotations = getPredictableRandomTrackIndex(seed);
+	arrayRotate(tracks, rotations);
 	let offsetSeconds = 0;
 	return tracks.map((track, i) => {
 		let currOffsetSeconds = offsetSeconds;
 		let currOffsetFrames = msToFrame(currOffsetSeconds * 1000)
 		offsetSeconds += track.seconds;
-		return (<Sequence from={currOffsetFrames}>
-			<Audio volume={0.2} placeholder={null} src={staticFile(`/music/${track.name}.mp3`)} />
+		return (<Sequence key={track.name} from={currOffsetFrames}>
+			<Audio volume={0.1} placeholder={null} src={staticFile(`/music/${track.name}.mp3`)} />
 		</Sequence>)
 	})
 }

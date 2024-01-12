@@ -19,7 +19,6 @@
     "audioconcat": "^0.1.4",
     "axios": "^1.6.5",
     "dotenv": "^16.3.1",
-    "get-mp3-duration": "^1.0.0",
     "googleapis": "^129.0.0",
     "install": "^0.13.0",
     "lowdb": "^7.0.1",

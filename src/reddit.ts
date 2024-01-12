@@ -1,5 +1,5 @@
 import reddit_init from 'reddit';
-import { REDDIT_CONFIG } from './config.js';
+import { POST_MAX_LENGTH, POST_MIN_LENGTH, REDDIT_CONFIG } from './config.js';
 import { db } from './db.js';
 
 const reddit = new reddit_init(REDDIT_CONFIG);
@@ -22,28 +22,43 @@ type SubredditResponse = {
 
 //urlSubReddit ex: '/r/ProgrammerHumor/new';
 export async function dereddit(urlSubReddit: string): Promise<RedditPost[] | null> {
-  const res: SubredditResponse = await reddit.get(urlSubReddit);
-  if (!res.data) {
+  try {
+    const res: SubredditResponse = await reddit.get(urlSubReddit);
+    const isListingsPage = !!res.data;
+    if (isListingsPage) {
+      const posts = res.data.children.filter((c) => {
+        if (db.data.posts[c.data.id]) {
+          console.log('Already exists in DB');
+          return false;
+        }
+        // if (!c.data.is_created_from_ads_ui) {
+        //   console.log('Is Ad');
+        // }
+        //   return false;
+        if (c.data.is_video) {
+          console.log('Is Video');
+          return false;
+        }
+        if (c.data.selftext.length < POST_MIN_LENGTH || c.data.selftext.length > POST_MAX_LENGTH) {
+          console.log('Incorrect post length');
+          return false;
+        }
+        return true;
+        // TODO check for CONTENT WARNING
+      });
+      return posts;
+    }
+    // @ts-ignore
+    const [post, comment] = res.map((item) => item.data.children[0]);
+    post.data.selftext = comment.data.body;
+    if (post.data.selftext.length < POST_MIN_LENGTH || post.data.selftext.length > POST_MAX_LENGTH) {
+      return [];
+    }
+    return [post];
+  } catch (e) {
     console.error('Error fetching from subreddit');
-    return null;
+    return [];
   }
-  const posts = res.data.children.filter((c) => {
-    if (db.data.posts[c.data.id]) {
-      console.log('Already exists in DB');
-      return false;
-    }
-    // if (!c.data.is_created_from_ads_ui) {
-    //   console.log('Is Ad');
-    // }
-    //   return false;
-    if (c.data.is_video) {
-      console.log('Is Video');
-      return false;
-    }
-    return true;
-    // TODO check for CONTENT WARNING
-  });
-  return posts;
 }
 
 // Example response res.data.children[0]

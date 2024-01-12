@@ -1,9 +1,5 @@
 import fs from 'fs';
-// @ts-ignore
-import getMP3Duration from 'get-mp3-duration';
-// @ts-ignore
-import MP3Duration from 'mp3-duration';
-import { ENV, SUBREDDIT } from './config.js';
+import { ENV, REDDIT_LINK } from './config.js';
 import { Post, getUnfinishedDbPosts, saveRedditPostToDb, updatePostFlagInDb, updatePostShortTitleInDb } from './db.js';
 import { shortenForTitle } from './llm.js';
 import { dereddit } from './reddit.js';
@@ -11,28 +7,13 @@ import { getTranscription } from './transcribe.js';
 import { uploadVideo } from './upload.js';
 import { createVoiceover, mergeAudio } from './voiceover.js';
 import { renderThumb, renderVideo } from './render.js';
-
-export async function sleep(s: number) {
-  return new Promise<void>((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, s * 1000);
-  });
-}
-
-async function mp3Seconds(path: string): Promise<number> {
-  return new Promise((resolve, reject) => {
-    // @ts-ignore
-    MP3Duration(path, function (err, duration) {
-      if (err) reject();
-      resolve(duration);
-    });
-  });
-}
+import { preprocessTextReading } from './text.js';
+import { mp3Seconds, sleep } from './utils.js';
 
 async function main() {
-  console.log('ENV', ENV);
+  // console.log('ENV', ENV);
   while (true) {
+    console.log('Starting over');
     let post: Post | null = null;
     const dbPosts = await getUnfinishedDbPosts();
     if (dbPosts.length) {
@@ -42,7 +23,7 @@ async function main() {
 
     // Get new reddit posts and reloop
     if (!post) {
-      const redditPosts = await dereddit(SUBREDDIT);
+      const redditPosts = await dereddit(REDDIT_LINK);
       if (!redditPosts) {
         console.error('No reddit posts');
         process.exit(1);
@@ -54,11 +35,14 @@ async function main() {
       continue;
     }
 
-    const { id, title, selftext: content } = post.reddit.data;
+    const { id, selftext: content } = post.reddit.data;
 
     const cwd = process.cwd();
+    let folderExists = false;
     // Create folder
-    const folderExists = (await fs.promises.lstat(`${cwd}/projects/${id}`)).isDirectory();
+    try {
+      folderExists = (await fs.promises.lstat(`${cwd}/projects/${id}`)).isDirectory();
+    } catch (e) {}
     if (!folderExists) {
       await fs.promises.mkdir(`${cwd}/projects/${id}`);
     }
@@ -67,10 +51,11 @@ async function main() {
     const transcriptPath = `${cwd}/projects/${id}/transcript.json`;
     const videoFilePath = `${cwd}/projects/${id}/finish.mp4`;
     const thumbnailPath = `${cwd}/projects/${id}/thumb.png`;
+    const title = preprocessTextReading(post.reddit.data.title);
 
     // Title, shorten with LLM
-    if (post.reddit.data.title.length <= 100) {
-      await updatePostShortTitleInDb(id, post.reddit.data.title);
+    if (title.length <= 100) {
+      await updatePostShortTitleInDb(id, title);
     } else if (!post.short_title) {
       console.log('-- TITLE SHORTENING --');
       console.log('Title with length', title.length, 'need shortening');
@@ -110,14 +95,14 @@ async function main() {
     }
 
     if (!post.flags.video) {
-      const duration = await mp3Seconds(voiceOverPath);
-      const introDuration = await mp3Seconds(introVoiceOverPath);
+      const durationS = await mp3Seconds(voiceOverPath);
+      const introDurationS = await mp3Seconds(introVoiceOverPath);
       const transcriptRaw = (await fs.promises.readFile(transcriptPath)).toString();
       const transcript = JSON.parse(transcriptRaw);
-      await fs.promises.rm(`${cwd}/../remotion/public/voiceover.mp3`);
-      await fs.promises.cp(voiceOverPath, `${cwd}/../remotion/public/voiceover.mp3`);
+      await fs.promises.rm(`${cwd}/remotion/public/voiceover.mp3`);
+      await fs.promises.cp(voiceOverPath, `${cwd}/remotion/public/voiceover.mp3`);
       try {
-        await renderVideo(videoFilePath, duration, introDuration, post.short_title, transcript);
+        await renderVideo(videoFilePath, durationS, introDurationS, post.short_title, transcript);
         // Update db
         await updatePostFlagInDb(id, 'video', true);
       } catch (e) {
@@ -128,7 +113,7 @@ async function main() {
 
     if (!post.flags.thumbnail) {
       try {
-        await renderThumb(thumbnailPath);
+        await renderThumb(thumbnailPath, title);
         // Update db
         await updatePostFlagInDb(id, 'thumbnail', true);
       } catch (e) {
@@ -137,19 +122,27 @@ async function main() {
       }
     }
 
-    if (!post.flags.uploaded && post.flags.shouldUpload) {
+    if (!post.flags.uploaded) {
       try {
         // Upload
-        await uploadVideo(videoFilePath, thumbnailPath, post.short_title, 'TODO', 'TAG,TODO');
+        console.log('Starting upload');
+        await uploadVideo(
+          videoFilePath,
+          thumbnailPath,
+          post.short_title,
+          'Hope you enjoyed this true story from the interwebs. Uploading daily. Subscribe for more 🔥',
+          'reddit,stories,storytelling,asmr,offmychest,aita,askreddit',
+        );
         // Update db
         await updatePostFlagInDb(id, 'uploaded', true);
         // Delete files
         // TODO
       } catch (e) {
         console.log('Upload error', e);
+        process.exit(1);
       }
     }
-
+    console.log('Done. Sleeping 10s...');
     await sleep(10);
   }
 }

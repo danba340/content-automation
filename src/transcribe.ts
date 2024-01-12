@@ -220,15 +220,4 @@ export async function getTranscription(in_path: string, out_path: string) {
   console.log('Wrote transcript to', out_path);
 
   return true;
-
-  // @ts-ignore
-  // const longestWord = Math.max(...script.split(' ').map((w) => w.length));
-
-  // let subtitle = await getSubtitleFile(transcriptId, longestWord);
-
-  // last word of subtitle missing, TODO is it always the case
-  // subtitle = fillLastScriptWordIsInSubtitles(subtitle, script);
-
-  // Print the completed transcript object
-  // console.log('Transcript done');
 }

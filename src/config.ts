@@ -1,5 +1,9 @@
 import 'dotenv/config';
 
+export const REDDIT_LINK = '/r/AskReddit/comments/1rgpdf/comment/cdnafqe/';
+export const POST_MIN_LENGTH = 1000; // 1min
+export const POST_MAX_LENGTH = 10000; // 10min @ 1000 characters per minute
+
 let env_keys = ['ELEVEN_LABS_API_KEY', 'ASSEMBLY_AI_API_KEY', 'REDDIT_PASSWORD', 'REDDIT_APP_SECRET', 'OPENAI_API_KEY'] as const;
 type EnvKeys = (typeof env_keys)[number];
 
@@ -29,5 +33,3 @@ export const REDDIT_CONFIG = {
   appSecret: ENV.REDDIT_APP_SECRET,
   userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/42.0',
 };
-
-export const SUBREDDIT = '/r/truestory/top/?t=all';
