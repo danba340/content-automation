@@ -30,9 +30,9 @@ export async function mergeAudio(slug: string, paths: string[]): Promise<string>
 export async function createVoiceover(title: string, content: string, slug: string) {
   const cwd = process.cwd();
   const files = [];
-  const maxLength = 100;
-  let chunks = toSentencedChunks(preprocessTextVoiceover(content), maxLength);
-  chunks.unshift(preprocessTextVoiceover(title) + '.');
+  const maxLength = 300;
+  let chunks = toSentencedChunks(preprocessTextVoiceover(content), maxLength).map((c) => c.trim());
+  chunks.unshift(preprocessTextVoiceover(title).trim() + '.');
   console.log(`Voiceover split into ${chunks.length}`);
   for (const [i, chunk] of Object.entries(chunks)) {
     console.log(`Generating chunk ${parseInt(i) + 1}/${chunks.length}`);

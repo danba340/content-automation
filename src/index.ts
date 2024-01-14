@@ -1,10 +1,10 @@
 import fs from 'fs';
 import { ENV, REDDIT_LINK } from './config.js';
-import { Post, getUnfinishedDbPosts, saveRedditPostToDb, updatePostFlagInDb, updatePostShortTitleInDb } from './db.js';
+import { Post, getUnfinishedDbPosts, saveRedditPostToDb, updatePostFlagInDb, updatePostShortTitleInDb, updatePostUpdateThumbnailInDb } from './db.js';
 import { shortenForTitle } from './llm.js';
 import { dereddit } from './reddit.js';
 import { getTranscription } from './transcribe.js';
-import { uploadVideo } from './upload.js';
+import { changeThumbnail, uploadVideo } from './upload.js';
 import { createVoiceover, mergeAudio } from './voiceover.js';
 import { renderThumb, renderVideo } from './render.js';
 import { preprocessTextReading } from './text.js';
@@ -54,24 +54,25 @@ async function main() {
     const title = preprocessTextReading(post.reddit.data.title);
 
     // Title, shorten with LLM
-    if (title.length <= 100) {
-      await updatePostShortTitleInDb(id, title);
-    } else if (!post.short_title) {
-      console.log('-- TITLE SHORTENING --');
-      console.log('Title with length', title.length, 'need shortening');
-      const yt_title = await shortenForTitle(title);
-      console.log('Shortened title:', yt_title);
-      if (!yt_title) {
-        console.log('Failed to generate shorter title');
-        process.exit(1);
-      }
-      await updatePostShortTitleInDb(id, yt_title);
-    }
+    // if (title.length <= 100) {
+    await updatePostShortTitleInDb(id, title);
+    // } else if (!post.short_title) {
+    //   console.log('-- TITLE SHORTENING --');
+    //   console.log('Title with length', title.length, 'need shortening');
+    //   const yt_title = await shortenForTitle(title);
+    //   console.log('Shortened title:', yt_title);
+    //   if (!yt_title) {
+    //     console.log('Failed to generate shorter title');
+    //     process.exit(1);
+    //   }
+    //   await updatePostShortTitleInDb(id, yt_title);
+    // }
 
     if (!post.flags.voiceover) {
       // Create voiceover
       console.log('-- CREATING VOICEOVER --');
-      const voiceOverPaths = await createVoiceover(title, content, id);
+      const end = ' Thanks for listening. Like and Subscribe for more.';
+      const voiceOverPaths = await createVoiceover(title, content + end, id);
       // Merge voiceovers
       if (voiceOverPaths.length <= 1) {
         console.log('Only one voiceover, should always be at least 2');
@@ -102,7 +103,7 @@ async function main() {
       await fs.promises.rm(`${cwd}/remotion/public/voiceover.mp3`);
       await fs.promises.cp(voiceOverPath, `${cwd}/remotion/public/voiceover.mp3`);
       try {
-        await renderVideo(videoFilePath, durationS, introDurationS, post.short_title, transcript);
+        await renderVideo(videoFilePath, durationS, introDurationS, title, transcript);
         // Update db
         await updatePostFlagInDb(id, 'video', true);
       } catch (e) {
@@ -127,21 +128,39 @@ async function main() {
         // Upload
         console.log('Starting upload');
         await uploadVideo(
+          id,
           videoFilePath,
           thumbnailPath,
-          post.short_title,
+          title,
           'Hope you enjoyed this true story from the interwebs. Uploading daily. Subscribe for more 🔥',
-          'reddit,stories,storytelling,asmr,offmychest,aita,askreddit',
+          'reddit,stories,storytelling,asmr,askreddit',
         );
         // Update db
         await updatePostFlagInDb(id, 'uploaded', true);
         // Delete files
         // TODO
       } catch (e) {
-        console.log('Upload error', e);
+        console.log('Upload video or thumbnail error', e);
         process.exit(1);
       }
     }
+
+    if (post.flags.update_thumbnail) {
+      try {
+        // Upload
+        console.log('Starting upload');
+        await changeThumbnail(post.yt_video_id, thumbnailPath);
+        // Update db
+        await updatePostUpdateThumbnailInDb(id, false);
+        console.log('Upload thumbnail success');
+        // Delete files
+        // TODO
+      } catch (e) {
+        console.log('Upload thumbnail error', e);
+        process.exit(1);
+      }
+    }
+
     console.log('Done. Sleeping 10s...');
     await sleep(10);
   }

@@ -11,6 +11,7 @@ export type RedditPost = {
     is_created_from_ads_ui: boolean;
     is_video: boolean;
     selftext: string;
+    over_18: boolean;
   };
 };
 
@@ -23,7 +24,7 @@ type SubredditResponse = {
 //urlSubReddit ex: '/r/ProgrammerHumor/new';
 export async function dereddit(urlSubReddit: string): Promise<RedditPost[] | null> {
   try {
-    const res: SubredditResponse = await reddit.get(urlSubReddit);
+    const res: SubredditResponse = await reddit.get(urlSubReddit, { t: 'year', limit: 10 });
     const isListingsPage = !!res.data;
     if (isListingsPage) {
       const posts = res.data.children.filter((c) => {
@@ -35,6 +36,11 @@ export async function dereddit(urlSubReddit: string): Promise<RedditPost[] | nul
         //   console.log('Is Ad');
         // }
         //   return false;
+        if (c.data.over_18) {
+          console.log('Over 18');
+          return false;
+        }
+
         if (c.data.is_video) {
           console.log('Is Video');
           return false;
@@ -50,7 +56,9 @@ export async function dereddit(urlSubReddit: string): Promise<RedditPost[] | nul
     }
     // @ts-ignore
     const [post, comment] = res.map((item) => item.data.children[0]);
-    post.data.selftext = comment.data.body;
+    if (post.data.selftext.length < comment.data.body.length) {
+      post.data.selftext = comment.data.body;
+    }
     if (post.data.selftext.length < POST_MIN_LENGTH || post.data.selftext.length > POST_MAX_LENGTH) {
       return [];
     }

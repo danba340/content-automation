@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
-export const REDDIT_LINK = '/r/AskReddit/comments/1rgpdf/comment/cdnafqe/';
-export const POST_MIN_LENGTH = 1000; // 1min
+export const REDDIT_LINK = '/r/Glitch_in_the_Matrix/top';
+export const POST_MIN_LENGTH = 500; // 1min
 export const POST_MAX_LENGTH = 10000; // 10min @ 1000 characters per minute
 
 let env_keys = ['ELEVEN_LABS_API_KEY', 'ASSEMBLY_AI_API_KEY', 'REDDIT_PASSWORD', 'REDDIT_APP_SECRET', 'OPENAI_API_KEY'] as const;

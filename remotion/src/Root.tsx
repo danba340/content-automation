@@ -1,7 +1,6 @@
 import { Composition } from 'remotion';
 import { Video, Thumbnail, videoSchema, thumbSchema } from './Composition';
 import './style.css';
-import { FPS } from './config';
 
 export const RemotionRoot: React.FC = () => {
 	return (
@@ -36,7 +35,7 @@ export const RemotionRoot: React.FC = () => {
 				height={720}
 				schema={thumbSchema}
 				defaultProps={{
-					text: 'My Husky saved my life',
+					text: new Array(29).fill("123456789 ").join("")
 				}}
 			/>
 		</>

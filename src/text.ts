@@ -62,18 +62,30 @@ export function removeEmojis(str: string) {
 }
 
 export function cleanNewlines(text: string) {
-  return text.replace(/(\r\n|\n|\r)/gm, '');
+  return text.replace(/(\r\n|\n|\r)/gm, ' ');
+}
+
+export function removeSpecialChars(text: string) {
+  return text.replace(/\*/gm, '');
 }
 
 export function removeLinks(text: string) {
   return text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, '');
 }
 
+export function replaceHtmlEncoded(text: string) {
+  return text.replace(/&amp;/g, 'and');
+}
+
 export function removeTags(text: string) {
   const regexNSFW = /\[NSFW\]|\[nsfw\]/g;
+  const regexMA = /\[MA\]|\[ma\]/g;
 
   if (text.match(regexNSFW)) {
     text = text.replace(regexNSFW, '');
+  }
+  if (text.match(regexMA)) {
+    text = text.replace(regexMA, '');
   }
 
   return text;
@@ -95,8 +107,12 @@ export function toSentencedChunks(text: string, maxLength: number) {
     } else {
       activeChunk += textArr.join('');
       chunks.push(activeChunk);
+      activeChunk = '';
       break;
     }
+  }
+  if (activeChunk.length) {
+    chunks.push(activeChunk);
   }
 
   return chunks;
@@ -109,13 +125,15 @@ export function preprocessTextVoiceover(text: string) {
   const cleanedNewlines = cleanNewlines(peopleExpanded);
   const noLinks = removeLinks(cleanedNewlines);
   const noTags = removeTags(noLinks);
-  const end = 'Thanks for listening. Like and Subscribe for more.';
-  return noTags + end;
+  const noHtmlEncoded = replaceHtmlEncoded(noTags);
+  const done = removeSpecialChars(noHtmlEncoded);
+  return done;
 }
 
 export function preprocessTextReading(text: string) {
   const cleaned = cleanNewlines(text);
   const noLinks = removeLinks(cleaned);
   const noTags = removeTags(noLinks);
-  return noTags;
+  const done = replaceHtmlEncoded(noTags);
+  return done;
 }

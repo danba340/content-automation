@@ -8,6 +8,8 @@ import { Subtitles } from './Subtitles';
 import { Music } from './Music';
 import { Voiceover } from './Voiceover';
 import { EndScreen } from './EndScreen';
+import { FPS } from './config';
+import { thumbnailTextLengthToTextSize } from './utils';
 
 console.log(getAvailableFonts());
 
@@ -28,6 +30,17 @@ export const videoSchema = z.object({
 	durationInFramesInput: z.string(),
 });
 
+const bgVideos = {
+	cake: {
+		file: "cake.mp4",
+		startFrom: 11 * FPS,
+	},
+	cosmetics: {
+		file: "cosmetics.mp4",
+		startFrom: 3 * FPS + 1,
+	}
+}
+
 export const Video: React.FC<z.infer<typeof videoSchema>> = ({
 	title,
 	transcript,
@@ -35,13 +48,14 @@ export const Video: React.FC<z.infer<typeof videoSchema>> = ({
 	durationInFramesInput,
 	voiceOverPath,
 }) => {
-	title = title.length > 207 ? title.substring(0, 207) + "..." : title;
+	// title = title.length > 207 ? title.substring(0, 207) + "..." : title;
+
 	return (
 		<AbsoluteFill style={{ fontFamily }} className="bg-gray-100 items-center justify-center">
 			<Music seed={parseInt(durationInFramesInput)} />
 			<Voiceover path={voiceOverPath} />
 			<AbsoluteFill>
-				<RVideo startFrom={11 * 30} src={staticFile("cake.mp4")} />
+				<RVideo muted={true} startFrom={bgVideos.cosmetics.startFrom} src={staticFile(bgVideos.cosmetics.file)} />
 			</AbsoluteFill>
 			<Sequence durationInFrames={introDurationInFrames} >
 				<div className='flex w-full justify-center items-center'>
@@ -63,7 +77,9 @@ export const thumbSchema = z.object({
 export const Thumbnail: React.FC<z.infer<typeof thumbSchema>> = ({
 	text
 }) => {
-	text = text.length > 120 ? text.substring(0, 117) + "..." : text;
+	// text = text.length > 200 ? text.substring(0, 197) + "..." : text;
+	let textSizeClass = thumbnailTextLengthToTextSize(text.length)
+	console.log("textSizeClass", textSizeClass)
 	return (
 		<AbsoluteFill style={{ fontFamily, background: BG_BLACK }} className="items-center justify-center">
 			<Img style={{ opacity: 0.5, height: "100%", left: "-12%" }} className='absolute' placeholder={"me"} src={staticFile("profile.jpeg")} />
@@ -75,7 +91,7 @@ export const Thumbnail: React.FC<z.infer<typeof thumbSchema>> = ({
 							<div className='flex pl-12 gap-2'>
 								<Img style={{ height: 25 }} placeholder={""} src={staticFile("reactions.png")} />
 							</div>
-							<h1 style={{ color: TEXT_WHITE }} className='text-5xl pl-12 pt-3 pb-8 leading-normal'>{text}</h1>
+							<h1 style={{ color: TEXT_WHITE }} className={`${textSizeClass} pl-12 pt-3 pb-8 leading-normal`}>{text}</h1>
 						</div>
 					</div>
 					<div style={{ color: TEXT_WHITE }} className=''>

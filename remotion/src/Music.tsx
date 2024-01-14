@@ -17,7 +17,9 @@ function getPredictableRandomTrackIndex(seed: number) {
 }
 
 function arrayRotate(arr: any[], times: number) {
-	arr.push(arr.shift());
+	for (let i = 0; i < times; i++) {
+		arr.push(arr.shift());
+	}
 	return arr;
 }
 

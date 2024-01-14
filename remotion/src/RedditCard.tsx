@@ -1,7 +1,7 @@
 import { Img, staticFile, AbsoluteFill, useCurrentFrame, interpolate } from "remotion"
 import { loadFont } from "@remotion/google-fonts/IBMPlexSans";
 import { BG_GREY, TEXT_WHITE } from "./Composition";
-import { msToFrame } from "./utils";
+import { msToFrame, videoTitleLengthToTextSize } from "./utils";
 const { fontFamily } = loadFont();
 
 function fadeOut(currentFrame: number, introDurationInFrames: number) {
@@ -14,7 +14,8 @@ function fadeOut(currentFrame: number, introDurationInFrames: number) {
 export function RedditCard({ title, introDurationInFrames }: { title: string, introDurationInFrames: number }) {
 	const currentFrame = useCurrentFrame()
 	const opacity = fadeOut(currentFrame, introDurationInFrames);
-
+	let textSizeClass = videoTitleLengthToTextSize(title.length)
+	console.log("textSizeClass", textSizeClass)
 	return (
 		<AbsoluteFill style={{ fontFamily, opacity }} className="items-center justify-center">
 			<div style={{ background: BG_GREY, width: "60%" }} className='shadow-xl absolute p-8 rounded-xl flex flex-col justify-between'>
@@ -24,7 +25,7 @@ export function RedditCard({ title, introDurationInFrames }: { title: string, in
 						<div className='flex pl-12 gap-2'>
 							<Img style={{ height: 25 }} placeholder={""} src={staticFile("reactions.png")} />
 						</div>
-						<h1 style={{ color: TEXT_WHITE }} className='text-5xl pl-12 pt-3 pb-8 leading-normal'>{title}</h1>
+						<h1 style={{ color: TEXT_WHITE }} className={`${textSizeClass} pl-12 pt-3 pb-8 leading-normal`}>{title}</h1>
 					</div>
 				</div>
 				<div style={{ color: TEXT_WHITE }} className=''>

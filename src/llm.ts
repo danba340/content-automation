@@ -18,9 +18,14 @@ async function prompt(prompt: string) {
 }
 
 export async function shortenForTitle(original: string) {
-  const pre_prompt = '';
+  const pre_prompt = 'Shorten this title to around 100 characters in a way that makes me curious to know more:';
   const full_prompt = pre_prompt + original;
-  const result = await prompt(full_prompt);
+  const res = await prompt(full_prompt);
+  const result = res?.choices[0].message.content;
   console.log('Shortened title:', result);
-  return result?.choices[0].message.content;
+  if (!result) {
+    console.log('Shorten title error');
+    process.exit(1);
+  }
+  return result.replace(/"/g, '');
 }

@@ -57,3 +57,29 @@ export function cleanSpecialChars(text: string) {
     .filter((c) => !SUBTITLE_FORBIDDEN_CHARS.includes(c))
     .join('');
 }
+
+export function thumbnailTextLengthToTextSize(l: number) {
+  if (l < 100) {
+    return 'text-6xl';
+  }
+  if (l < 140) {
+    return 'text-5xl';
+  }
+  if (l < 280) {
+    return 'text-4xl';
+  }
+  return 'text-3xl';
+}
+
+export function videoTitleLengthToTextSize(l: number) {
+  if (l < 100) {
+    return 'text-6xl';
+  }
+  if (l < 140) {
+    return 'text-5xl';
+  }
+  if (l < 280) {
+    return 'text-4xl';
+  }
+  return 'text-3xl';
+}

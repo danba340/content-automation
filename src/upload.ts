@@ -9,6 +9,7 @@ import readline from 'readline';
 import assert from 'assert';
 import { Auth, google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
+import { updatePostYTVideoIdInDb } from './db.js';
 
 type Credentials = {
   installed: {
@@ -22,7 +23,7 @@ type Credentials = {
 const SCOPES = ['https://www.googleapis.com/auth/youtube.upload'];
 const TOKEN_PATH = `${process.cwd()}/client_oauth_token.json`;
 
-export async function uploadVideo(videoFilePath: string, thumbFilePath: string, title: string, description: string, tags: string) {
+export async function uploadVideo(id: string, videoFilePath: string, thumbFilePath: string, title: string, description: string, tags: string) {
   assert(fs.existsSync(videoFilePath), `No video in path ${videoFilePath}`);
   assert(fs.existsSync(thumbFilePath), `No thumbnail in path ${thumbFilePath}`);
 
@@ -30,7 +31,18 @@ export async function uploadVideo(videoFilePath: string, thumbFilePath: string, 
   const content = fs.readFileSync(`${process.cwd()}/client_secret.json`);
   // Authorize a client with the loaded credentials, then call the YouTube API.
   return new Promise<void>((resolve, reject) => {
-    authorize(JSON.parse(content.toString()), (auth: Auth.OAuth2Client) => uploadVideoAuthed(auth, videoFilePath, thumbFilePath, title, description, tags, resolve, reject), reject);
+    authorize(JSON.parse(content.toString()), (auth: Auth.OAuth2Client) => uploadVideoAndThumbnailAuthed(auth, id, videoFilePath, thumbFilePath, title, description, tags, resolve, reject), reject);
+  });
+}
+
+export async function changeThumbnail(yt_id: string, thumbFilePath: string) {
+  assert(fs.existsSync(thumbFilePath), `No thumbnail in path ${thumbFilePath}`);
+
+  // Load client secrets from a local file.
+  const content = fs.readFileSync(`${process.cwd()}/client_secret.json`);
+  // Authorize a client with the loaded credentials, then call the YouTube API.
+  return new Promise<void>((resolve, reject) => {
+    authorize(JSON.parse(content.toString()), (auth: Auth.OAuth2Client) => uploadThumbnailAuthed(auth, thumbFilePath, yt_id, resolve, reject), reject);
   });
 }
 
@@ -39,7 +51,17 @@ export async function uploadVideo(videoFilePath: string, thumbFilePath: string, 
  *
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-function uploadVideoAuthed(auth: Auth.OAuth2Client, videoFilePath: string, thumbFilePath: string, title: string, description: string, tags: string, resolve: () => void, reject: () => void) {
+function uploadVideoAndThumbnailAuthed(
+  auth: Auth.OAuth2Client,
+  dbId: string,
+  videoFilePath: string,
+  thumbFilePath: string,
+  title: string,
+  description: string,
+  tags: string,
+  resolve: () => void,
+  reject: () => void,
+) {
   const service = google.youtube('v3');
   console.log('Authed upload starting');
   service.videos.insert(
@@ -70,8 +92,8 @@ function uploadVideoAuthed(auth: Auth.OAuth2Client, videoFilePath: string, thumb
         return;
       }
       console.log(response!.data);
-
       console.log('Video uploaded. Uploading the thumbnail now.');
+      updatePostYTVideoIdInDb(dbId, response!.data.id as string);
       service.thumbnails.set(
         {
           auth,
@@ -92,6 +114,36 @@ function uploadVideoAuthed(auth: Auth.OAuth2Client, videoFilePath: string, thumb
       );
     },
   );
+}
+
+/**
+ * Upload the video file.
+ *
+ * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
+ */
+function uploadThumbnailAuthed(auth: Auth.OAuth2Client, thumbFilePath: string, videoId: string, resolve: () => void, reject: () => void) {
+  const service = google.youtube('v3');
+  console.log('Authed thumbnail upload starting');
+  service.thumbnails.set(
+    {
+      auth,
+      videoId,
+      media: {
+        body: fs.createReadStream(thumbFilePath),
+      },
+    },
+    function (err, response) {
+      if (err) {
+        console.log('The API returned an error: ' + err);
+        reject();
+        return;
+      }
+      console.log(response!.data);
+      resolve();
+    },
+  );
+  //   },
+  // );
 }
 
 /**
