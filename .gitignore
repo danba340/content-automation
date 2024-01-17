@@ -11,7 +11,8 @@ src/media/*
 client_auth_token.json
 
 remotion/node_modules
-remotion/public/*
 remotion/out
+remotion/public/*.mp4
+*.mp4
 
 client_oauth_token.json

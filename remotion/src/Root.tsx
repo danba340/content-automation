@@ -35,7 +35,7 @@ export const RemotionRoot: React.FC = () => {
 				height={720}
 				schema={thumbSchema}
 				defaultProps={{
-					text: new Array(29).fill("123456789 ").join("")
+					text: "A random noise in a totally unconventional placeasa "
 				}}
 			/>
 		</>

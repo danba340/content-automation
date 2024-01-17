@@ -5,16 +5,16 @@ export function expandAgeSyntax(str: string) {
   const regexFemaleB = /\[(\d{1,2})\s?(F|f)\]/;
 
   if (str.match(regexMaleP)) {
-    str = str.replace(regexMaleP, ',a ' + '$1' + ' year old male,');
+    str = str.replace(regexMaleP, ', ' + '$1' + ' year old male,');
   }
   if (str.match(regexFemaleP)) {
-    str = str.replace(regexFemaleP, ',a ' + '$1' + ' year old female,');
+    str = str.replace(regexFemaleP, ', ' + '$1' + ' year old female,');
   }
   if (str.match(regexMaleB)) {
-    str = str.replace(regexMaleB, ',a ' + '$1' + ' year old male,');
+    str = str.replace(regexMaleB, ', ' + '$1' + ' year old male,');
   }
   if (str.match(regexFemaleB)) {
-    str = str.replace(regexFemaleB, ',a ' + '$1' + ' year old female,');
+    str = str.replace(regexFemaleB, ', ' + '$1' + ' year old female,');
   }
   return str;
 }

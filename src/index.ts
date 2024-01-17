@@ -8,7 +8,7 @@ import { changeThumbnail, uploadVideo } from './upload.js';
 import { createVoiceover, mergeAudio } from './voiceover.js';
 import { renderThumb, renderVideo } from './render.js';
 import { preprocessTextReading } from './text.js';
-import { mp3Seconds, sleep } from './utils.js';
+import { mp3Seconds, sleep, yesOrNo } from './utils.js';
 
 async function main() {
   // console.log('ENV', ENV);
@@ -35,7 +35,7 @@ async function main() {
       continue;
     }
 
-    const { id, selftext: content } = post.reddit.data;
+    const { id, title, selftext: content } = post.reddit.data;
 
     const cwd = process.cwd();
     let folderExists = false;
@@ -51,11 +51,11 @@ async function main() {
     const transcriptPath = `${cwd}/projects/${id}/transcript.json`;
     const videoFilePath = `${cwd}/projects/${id}/finish.mp4`;
     const thumbnailPath = `${cwd}/projects/${id}/thumb.png`;
-    const title = preprocessTextReading(post.reddit.data.title);
+    const titleReading = preprocessTextReading(title);
 
     // Title, shorten with LLM
     // if (title.length <= 100) {
-    await updatePostShortTitleInDb(id, title);
+    // await updatePostShortTitleInDb(id, title);
     // } else if (!post.short_title) {
     //   console.log('-- TITLE SHORTENING --');
     //   console.log('Title with length', title.length, 'need shortening');
@@ -72,6 +72,16 @@ async function main() {
       // Create voiceover
       console.log('-- CREATING VOICEOVER --');
       const end = ' Thanks for listening. Like and Subscribe for more.';
+      const fullText = `${title} ${content} ${end}`;
+      const cost = (fullText.length / 1000) * 0.3;
+      console.log('Content: ', content);
+      console.log('Title: ', title);
+      console.log('Length: ', fullText.length, 'Video Cost: ' + cost.toFixed(2) + '$');
+      const shouldMakeVideo = await yesOrNo('Continue?');
+      if (!shouldMakeVideo) {
+        await updatePostFlagInDb(id, 'blocked', true);
+        continue;
+      }
       const voiceOverPaths = await createVoiceover(title, content + end, id);
       // Merge voiceovers
       if (voiceOverPaths.length <= 1) {
@@ -103,7 +113,7 @@ async function main() {
       await fs.promises.rm(`${cwd}/remotion/public/voiceover.mp3`);
       await fs.promises.cp(voiceOverPath, `${cwd}/remotion/public/voiceover.mp3`);
       try {
-        await renderVideo(videoFilePath, durationS, introDurationS, title, transcript);
+        await renderVideo(videoFilePath, durationS, introDurationS, titleReading, transcript);
         // Update db
         await updatePostFlagInDb(id, 'video', true);
       } catch (e) {
@@ -112,9 +122,9 @@ async function main() {
       }
     }
 
-    if (!post.flags.thumbnail) {
+    if (!post.flags.thumbnail || post.flags.update_thumbnail) {
       try {
-        await renderThumb(thumbnailPath, title);
+        await renderThumb(thumbnailPath, titleReading);
         // Update db
         await updatePostFlagInDb(id, 'thumbnail', true);
       } catch (e) {
@@ -131,7 +141,7 @@ async function main() {
           id,
           videoFilePath,
           thumbnailPath,
-          title,
+          titleReading,
           'Hope you enjoyed this true story from the interwebs. Uploading daily. Subscribe for more 🔥',
           'reddit,stories,storytelling,asmr,askreddit',
         );
@@ -161,8 +171,8 @@ async function main() {
       }
     }
 
-    console.log('Done. Sleeping 10s...');
-    await sleep(10);
+    console.log('Done.', post.yt_video_id, post.short_title);
+    // await sleep(10);
   }
 }
 

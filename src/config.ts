@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-export const REDDIT_LINK = '/r/Glitch_in_the_Matrix/top';
+export const REDDIT_LINK = '/r/confession/top/?t=all';
 export const POST_MIN_LENGTH = 500; // 1min
 export const POST_MAX_LENGTH = 10000; // 10min @ 1000 characters per minute
 

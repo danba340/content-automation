@@ -47,8 +47,17 @@ export const db = await JSONFilePreset<typeof DEFAULT_DATA>('db.json', { posts: 
 export async function getUnfinishedDbPosts(): Promise<Post[]> {
   await db.read();
   const posts = Object.entries(db.data.posts);
+  const someNeedThumbnail = posts.filter(([id, post]) => {
+    return post.flags.update_thumbnail && post.flags.uploaded;
+  });
+  if (someNeedThumbnail.length) {
+    return someNeedThumbnail.map((post) => ({
+      id: post[0],
+      ...post[1],
+    }));
+  }
   const unfinishedPosts = posts.filter(([id, post]) => {
-    return (!post.flags.blocked && !post.flags.uploaded) || post.flags.update_thumbnail;
+    return !post.flags.blocked && !post.flags.uploaded;
   });
   return unfinishedPosts.map((post) => ({
     id: post[0],
