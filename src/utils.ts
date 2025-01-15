@@ -27,7 +27,7 @@ export function yesOrNo(query: string): Promise<boolean> {
   });
 
   return new Promise((resolve) =>
-    rl.question(query + ' Y/n', (ans) => {
+    rl.question(query + ' Y/n\n', (ans) => {
       rl.close();
       if (ans === 'Y') {
         resolve(true);

@@ -8,6 +8,7 @@ export type Post = {
   flags: { [k in PostBooleanKeys]: boolean };
   short_title: string;
   yt_video_id: string;
+  uploaded_at: string;
 };
 
 const DEFAULT_DATA: {
@@ -19,6 +20,7 @@ const DEFAULT_DATA: {
     demo: {
       short_title: '',
       yt_video_id: '',
+      uploaded_at: '',
       reddit: {
         data: {
           id: 'demo-id',
@@ -75,6 +77,7 @@ export async function saveRedditPostToDb(redditPost: RedditPost) {
     reddit: redditPost,
     short_title: '',
     yt_video_id: '',
+    uploaded_at: '',
     flags: {
       blocked: false,
       voiceover: false,
@@ -94,6 +97,9 @@ export async function saveRedditPostToDb(redditPost: RedditPost) {
 export async function updatePostFlagInDb(id: string, key: PostBooleanKeys, val: boolean) {
   await db.update(({ posts }) => {
     posts[id].flags[key] = val;
+    if (key === 'uploaded' && val === true) {
+      posts[id].uploaded_at = new Date().toLocaleString(); // TODO sweden time
+    }
   });
 }
 
@@ -114,3 +120,6 @@ export async function updatePostUpdateThumbnailInDb(id: string, val: boolean) {
     posts[id].flags.update_thumbnail = val;
   });
 }
+
+export async function getTimeOfLastUpload() {} // TODO
+export async function countUploadsToday() {} // TODO

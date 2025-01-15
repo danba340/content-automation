@@ -7,13 +7,26 @@ import { getTranscription } from './transcribe.js';
 import { changeThumbnail, uploadVideo } from './upload.js';
 import { createVoiceover, mergeAudio } from './voiceover.js';
 import { renderThumb, renderVideo } from './render.js';
-import { preprocessTextReading } from './text.js';
+import { preprocessTextReading, preprocessTextVoiceover } from './text.js';
 import { mp3Seconds, sleep, yesOrNo } from './utils.js';
 
 async function main() {
   // console.log('ENV', ENV);
   while (true) {
     console.log('Starting over');
+    // TODO
+    // const lastUpload = await getTimeOfLastUpload(); // TODO
+    // const hoursFromLastUpload = Math.abs(new Date().getTime() - new Date(lastUpload).getTime()) / 1000 / 60 / 60;
+    // if (hoursFromLastUpload < 2) {
+    //   await sleep(60);
+    //   continue;
+    // }
+    // const uploadsToday = await countUploadsToday(); // TODO
+    // if (uploadsToday >= 6) {
+    //   const seconds = secondsUntilSwedish9am(); // TODO
+    //   await sleep(seconds);
+    //   continue;
+    // }
     let post: Post | null = null;
     const dbPosts = await getUnfinishedDbPosts();
     if (dbPosts.length) {
@@ -35,7 +48,12 @@ async function main() {
       continue;
     }
 
-    const { id, title, selftext: content } = post.reddit.data;
+    const { id, title, selftext: contentRaw } = post.reddit.data;
+
+    if (title.toLowerCase().startsWith('update')) {
+      await updatePostFlagInDb(id, 'blocked', true);
+      continue;
+    }
 
     const cwd = process.cwd();
     let folderExists = false;
@@ -72,17 +90,19 @@ async function main() {
       // Create voiceover
       console.log('-- CREATING VOICEOVER --');
       const end = ' Thanks for listening. Like and Subscribe for more.';
-      const fullText = `${title} ${content} ${end}`;
+      const content = preprocessTextVoiceover(contentRaw);
+      const titleVoice = preprocessTextVoiceover(title).trim();
+      const fullText = `${titleVoice} ${content} ${end}`;
       const cost = (fullText.length / 1000) * 0.3;
       console.log('Content: ', content);
-      console.log('Title: ', title);
+      console.log('Title: ', titleVoice);
       console.log('Length: ', fullText.length, 'Video Cost: ' + cost.toFixed(2) + '$');
-      const shouldMakeVideo = await yesOrNo('Continue?');
-      if (!shouldMakeVideo) {
-        await updatePostFlagInDb(id, 'blocked', true);
-        continue;
-      }
-      const voiceOverPaths = await createVoiceover(title, content + end, id);
+      // const shouldMakeVideo = await yesOrNo('Continue?');
+      // if (!shouldMakeVideo) {
+      //   await updatePostFlagInDb(id, 'blocked', true);
+      //   continue;
+      // }
+      const voiceOverPaths = await createVoiceover(titleVoice, content + end, id);
       // Merge voiceovers
       if (voiceOverPaths.length <= 1) {
         console.log('Only one voiceover, should always be at least 2');
@@ -136,7 +156,7 @@ async function main() {
     if (!post.flags.uploaded) {
       try {
         // Upload
-        console.log('Starting upload');
+        console.log('Starting upload', videoFilePath, thumbnailPath);
         await uploadVideo(
           id,
           videoFilePath,
@@ -147,8 +167,9 @@ async function main() {
         );
         // Update db
         await updatePostFlagInDb(id, 'uploaded', true);
-        // Delete files
         // TODO
+        // Delete files
+        // deleteFiles(id)
       } catch (e) {
         console.log('Upload video or thumbnail error', e);
         process.exit(1);
@@ -165,13 +186,14 @@ async function main() {
         console.log('Upload thumbnail success');
         // Delete files
         // TODO
+        // deleteFiles(id)
       } catch (e) {
         console.log('Upload thumbnail error', e);
         process.exit(1);
       }
     }
 
-    console.log('Done.', post.yt_video_id, post.short_title);
+    console.log('Done.', post.yt_video_id, titleReading);
     // await sleep(10);
   }
 }

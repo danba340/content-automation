@@ -14,7 +14,7 @@ export const RemotionRoot: React.FC = () => {
 				height={1080}
 				schema={videoSchema}
 				defaultProps={{
-					title: 'Default title',
+					title: 'Default titles as',
 					transcript: [{ "text": "Default", "start": 90, "end": 206, "confidence": 1, "speaker": null }],
 					introDurationInFrames: 30 * 2, // 2s
 					voiceOverPath: "voiceover.mp3",

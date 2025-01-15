@@ -1,4 +1,4 @@
-import { AbsoluteFill, staticFile, Video as RVideo, Sequence } from 'remotion';
+import { AbsoluteFill, Sequence } from 'remotion';
 import { z } from 'zod';
 import { loadFont } from "@remotion/google-fonts/IBMPlexSans";
 const { fontFamily } = loadFont();
@@ -8,9 +8,9 @@ import { Subtitles } from './Subtitles';
 import { Music } from './Music';
 import { Voiceover } from './Voiceover';
 import { EndScreen } from './EndScreen';
-import { FPS } from './config';
 import { thumbnailTextLengthToTextSize } from './utils';
 import { RedditCardFullScreen } from './RedditCardFullscreen2';
+import { BackgroundVideo } from './BackgroundVideo';
 
 console.log(getAvailableFonts());
 
@@ -31,32 +31,22 @@ export const videoSchema = z.object({
 	durationInFramesInput: z.string(),
 });
 
-const bgVideos = {
-	cake: {
-		file: "cake.mp4",
-		startFrom: 11 * FPS,
-	},
-	cosmetics: {
-		file: "cosmetics.mp4",
-		startFrom: 3 * FPS + 1,
-	}
-}
-
 export const Video: React.FC<z.infer<typeof videoSchema>> = ({
 	title,
 	transcript,
 	introDurationInFrames,
-	durationInFramesInput,
+	durationInFramesInput: durationInFramesInputStr,
 	voiceOverPath,
 }) => {
 	// title = title.length > 207 ? title.substring(0, 207) + "..." : title;
-
+	const durationInFramesInput = parseInt(durationInFramesInputStr);
 	return (
 		<AbsoluteFill style={{ fontFamily }} className="bg-gray-100 items-center justify-center">
-			<Music seed={parseInt(durationInFramesInput)} />
+			<Music seed={durationInFramesInput} />
 			<Voiceover path={voiceOverPath} />
 			<AbsoluteFill>
-				<RVideo muted={true} startFrom={bgVideos.cosmetics.startFrom} src={staticFile(bgVideos.cosmetics.file)} />
+				{/* <RVideo loop muted={true} startFrom={startFrame} src={staticFile(video.file)} /> */}
+				<BackgroundVideo title={title} durationInFramesInput={durationInFramesInput} />
 			</AbsoluteFill>
 			<Sequence durationInFrames={introDurationInFrames} >
 				<div className='flex w-full justify-center items-center'>
@@ -66,7 +56,7 @@ export const Video: React.FC<z.infer<typeof videoSchema>> = ({
 			<div className='flex w-full justify-center items-end h-full mb-12'>
 				<Subtitles words={transcript} />
 			</div>
-			<EndScreen durationInFramesInput={parseInt(durationInFramesInput)} />
+			<EndScreen durationInFramesInput={durationInFramesInput} />
 		</AbsoluteFill>
 	);
 };

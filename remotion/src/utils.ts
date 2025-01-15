@@ -83,3 +83,6 @@ export function videoTitleLengthToTextSize(l: number) {
   }
   return 'text-3xl';
 }
+
+export function secondsUntilSwedish9am() {} // TODO
+export function deleteFiles() {} // TODO

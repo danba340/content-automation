@@ -12,7 +12,6 @@ const TEXT_COLORS = [
 	"#ffa751", // Orange
 	"#6dd5ed", // Blue
 	"#6be585", // Green
-	"#ec2F4B", // Red
 ]
 
 const BG_COLORS = [
@@ -84,7 +83,6 @@ export function textLengthToTextSize(l: number) {
 
 
 
-// TODO make almost full screen, make random gradient from a set of colors, Use random reddit avatar, 
 export function RedditCardFullScreen({ title }: { title: string }) {
 	title = title.length > 280 ? title.substring(0, 277) + "..." : title;
 	let textSizeClass = textLengthToTextSize(title.length)

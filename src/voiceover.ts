@@ -31,8 +31,8 @@ export async function createVoiceover(title: string, content: string, slug: stri
   const cwd = process.cwd();
   const files = [];
   const maxLength = 300;
-  let chunks = toSentencedChunks(preprocessTextVoiceover(content), maxLength).map((c) => c.trim());
-  chunks.unshift(preprocessTextVoiceover(title).trim() + '.');
+  let chunks = toSentencedChunks(content, maxLength).map((c) => c.trim());
+  chunks.unshift(title);
   console.log(`Voiceover split into ${chunks.length}`);
   for (const [i, chunk] of Object.entries(chunks)) {
     console.log(`Generating chunk ${parseInt(i) + 1}/${chunks.length}`);

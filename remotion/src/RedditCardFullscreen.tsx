@@ -55,7 +55,6 @@ export function textLengthToTextSize(l: number) {
 }
 
 
-// TODO make almost full screen, make random gradient from a set of colors, Use random reddit avatar, 
 export function RedditCardFullScreen({ title }: { title: string }) {
 	title = title.length > 280 ? title.substring(0, 277) + "..." : title;
 	let textSizeClass = textLengthToTextSize(title.length)
